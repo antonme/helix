@@ -1,5 +1,7 @@
 pub use encoding_rs as encoding;
 
+mod combinators;
+
 pub mod auto_pairs;
 pub mod case_conversion;
 pub mod chars;

@@ -99,3 +99,5 @@
 | `:noop` | Does nothing. |
 | `:workspace-trust` | Add current workspace to the list of trusted workspaces. |
 | `:workspace-untrust` | Remove current workspace from the list of trusted workspaces. |
+| `:history-reload` | Prepends undofile history to current history. |
+| `:delete-undofile` | Delete undofile associated with the currently focused document |

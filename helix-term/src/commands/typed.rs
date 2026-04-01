@@ -2838,6 +2838,21 @@ fn read(cx: &mut compositor::Context, args: Args, event: PromptEvent) -> anyhow:
     Ok(())
 }
 
+fn reload_undofile(
+    cx: &mut compositor::Context,
+    _args: Args,
+    event: PromptEvent,
+) -> anyhow::Result<()> {
+    if event != PromptEvent::Validate {
+        return Ok(());
+    }
+
+    let doc = doc_mut!(cx.editor);
+    doc.load_undofile()?;
+
+    Ok(())
+}
+
 fn echo(cx: &mut compositor::Context, args: Args, event: PromptEvent) -> anyhow::Result<()> {
     if event != PromptEvent::Validate {
         return Ok(());
@@ -2851,6 +2866,23 @@ fn echo(cx: &mut compositor::Context, args: Args, event: PromptEvent) -> anyhow:
         acc
     });
     cx.editor.set_status(output);
+
+    Ok(())
+}
+
+fn delete_undofile(
+    cx: &mut compositor::Context,
+    _args: Args,
+    event: PromptEvent,
+) -> anyhow::Result<()> {
+    if event != PromptEvent::Validate {
+        return Ok(());
+    }
+
+    let doc = doc!(cx.editor);
+    if let Some(path) = doc.undo_file()? {
+        std::fs::remove_file(path)?;
+    }
 
     Ok(())
 }
@@ -3991,6 +4023,23 @@ pub const TYPABLE_COMMAND_LIST: &[TypableCommand] = &[
         fun: untrust_workspace,
         completer: CommandCompleter::none(),
         signature: Signature { positionals: (0, None), ..Signature::DEFAULT },
+    },
+    TypableCommand {
+        // Not named reload-history so people don't accidentally call delete-undofile
+        name: "history-reload",
+        aliases: &[],
+        doc: "Prepends undofile history to current history.",
+        fun: reload_undofile,
+        completer: CommandCompleter::none(),
+        signature: Signature::DEFAULT,
+    },
+    TypableCommand {
+        name: "delete-undofile",
+        aliases: &[],
+        doc: "Delete undofile associated with the currently focused document",
+        fun: delete_undofile,
+        completer: CommandCompleter::none(),
+        signature: Signature::DEFAULT,
     }
 ];
 
